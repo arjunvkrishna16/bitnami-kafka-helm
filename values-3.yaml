@@ -1,0 +1,45 @@
+image:
+  repository: arjunvkrishna/kafka
+  tag: "1.0.1"
+
+broker:
+  - id: 2
+
+kafka:
+  brokerId: 2
+  quorumVoters: "0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093"
+  clusterId: "abcdefghijklmnopqrstuv"
+  offsetsTopicReplicationFactor: 3
+  transactionStateLogReplicationFactor: 3
+  transactionStateLogMinISR: 2
+  numPartitions: 32
+  logRetentionHours: 600000
+
+resources:
+  requests:
+    memory: "50Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "250m"
+
+persistence:
+  enabled: true
+  name: kafka-2-pvc
+  storageClassName: hostpath
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+
+service:
+  name: kafka-2
+  labels:
+    app: kafka-2
+  type: NodePort
+  ports:
+    port: 9092
+    targetPort: 9092
+    nodePort: 32002
+    name: kafka-2
+  selector:
+    app: kafka-2
