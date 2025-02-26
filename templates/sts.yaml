@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-{{ .Values.broker.id }}
+spec:
+  serviceName: kafka-{{ .Values.broker.id }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-{{ .Values.broker.id }}
+  template:
+    metadata:
+      labels:
+        app: kafka-{{ .Values.broker.id }}
+    spec:
+      containers:
+        - name: kafka-{{ .Values.broker.id }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          resources:
+            requests:
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
+          ports:
+            - containerPort: 9092
+          env:
+            - name: KAFKA_CFG_NODE_ID
+              value: "{{ .Values.broker.id }}"
+            - name: KAFKA_CFG_PROCESS_ROLES
+              value: "controller,broker"
+            - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+              value: "{{ .Values.kafka.quorumVoters }}"
+            - name: KAFKA_KRAFT_CLUSTER_ID
+              value: "{{ .Values.kafka.clusterId }}"
+            - name: KAFKA_CFG_LISTENERS
+              value: "PLAINTEXT://:9092,CONTROLLER://:9093"
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+            - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+              value: "CONTROLLER"
+            - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+              value: "PLAINTEXT"
+            - name: KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "{{ .Values.kafka.offsetsTopicReplicationFactor }}"
+            - name: KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+              value: "{{ .Values.kafka.transactionStateLogReplicationFactor }}"
+            - name: KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR
+              value: "{{ .Values.kafka.transactionStateLogMinISR }}"
+            - name: KAFKA_CFG_NUM_PARTITIONS
+              value: "{{ .Values.kafka.numPartitions }}"
+            - name: KAFKA_CFG_LOG_RETENTION_HOURS
+              value: "{{ .Values.kafka.logRetentionHours }}"
+          volumeMounts:
+            - name: kafka-storage-{{ .Values.broker.id }}
+              mountPath: "{{ .Values.storage.path }}"
+      volumes:
+        - name: kafka-storage-{{ .Values.broker.id }}
+          persistentVolumeClaim:
+            claimName: kafka-{{ .Values.broker.id }}-pvc
