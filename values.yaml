@@ -25,10 +25,11 @@ resources:
 
 persistence:
   enabled: true
+  name: kafka-0-pvc
+  storageClassName: hostpath
   accessModes:
     - ReadWriteOnce
-  storageClass: "hostpath"
-  size: 8Gi
+  size: 10Gi
 
 service:
   name: kafka-0
