@@ -2,12 +2,11 @@ image:
   repository: arjunvkrishna/kafka
   tag: "1.0.1"
 
-brokers:
+broker:
   - id: 0
-  - id: 1
-  - id: 2
 
 kafka:
+  brokerId: 0
   quorumVoters: "0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093"
   clusterId: "abcdefghijklmnopqrstuv"
   offsetsTopicReplicationFactor: 3
@@ -32,10 +31,14 @@ persistence:
   size: 8Gi
 
 service:
-  kafka0:
-    type: NodePort
+  name: kafka-0
+  labels:
+    app: kafka-0
+  type: NodePort
+  ports:
+    port: 9092
+    targetPort: 9092
     nodePort: 32000
-  kafka1:
-    type: ClusterIP
-  kafka2:
-    type: ClusterIP
+    name: kafka-0
+  selector:
+    app: kafka-0

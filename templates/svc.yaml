@@ -1,17 +1,17 @@
+# svc_template.yaml
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka-{{ .Values.kafka.nodeIds }}
+  name: {{ .Values.service.name }}
   labels:
-    app: kafka-{{ .Values.kafka.nodeIds }}
+    app: {{ .Values.service.labels.app }}
 spec:
-  type: {{ if eq .Values.kafka.nodeIds 0 }}{{ .Values.service.kafka0.type }}{{ else }}ClusterIP{{ end }}
+  type: {{ .Values.service.type }}
   ports:
-    - port: 9092
-      targetPort: 9092
-      {{- if eq .Values.kafka.nodeIds 0 }}
-      nodePort: {{ .Values.service.kafka0.nodePort }}
-      {{- end }}
-      name: kafka-{{ .Values.kafka.nodeIds }}
+  - port: {{ .Values.service.ports.port }}
+    targetPort: {{ .Values.service.ports.targetPort }}
+    nodePort: {{ .Values.service.ports.nodePort }}
+    name: {{ .Values.service.ports.name }}
   selector:
-    app: kafka-{{ .Values.kafka.nodeIds }}
+    app: {{ .Values.service.selector.app }}

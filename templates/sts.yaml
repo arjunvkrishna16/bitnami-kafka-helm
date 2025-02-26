@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: kafka-{{ .Values.broker.id }}
+  name: kafka-{{ .Values.kafka.brokerId }}
 spec:
-  serviceName: kafka-{{ .Values.broker.id }}
+  serviceName: kafka-{{ .Values.kafka.brokerId }}
   replicas: 1
   selector:
     matchLabels:
-      app: kafka-{{ .Values.broker.id }}
+      app: kafka-{{ .Values.kafka.brokerId }}
   template:
     metadata:
       labels:
-        app: kafka-{{ .Values.broker.id }}
+        app: kafka-{{ .Values.kafka.brokerId }}
     spec:
       containers:
-        - name: kafka-{{ .Values.broker.id }}
+        - name: kafka-{{ .Values.kafka.brokerId }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           resources:
             requests:
@@ -27,7 +27,7 @@ spec:
             - containerPort: 9092
           env:
             - name: KAFKA_CFG_NODE_ID
-              value: "{{ .Values.broker.id }}"
+              value: "{{ .Values.kafka.brokerId }}"
             - name: KAFKA_CFG_PROCESS_ROLES
               value: "controller,broker"
             - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
@@ -55,9 +55,7 @@ spec:
             - name: KAFKA_CFG_LOG_RETENTION_HOURS
               value: "{{ .Values.kafka.logRetentionHours }}"
           volumeMounts:
-            - name: kafka-storage-{{ .Values.broker.id }}
-              mountPath: "{{ .Values.storage.path }}"
+            - name: kafka-storage-{{ .Values.kafka.brokerId }}
+              mountPath: /bitnami/kafka/
       volumes:
-        - name: kafka-storage-{{ .Values.broker.id }}
-          persistentVolumeClaim:
-            claimName: kafka-{{ .Values.broker.id }}-pvc
+        - name: kafka-storage-{{ .Values.kafka.brokerId }}
